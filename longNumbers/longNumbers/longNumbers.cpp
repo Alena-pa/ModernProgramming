@@ -59,7 +59,7 @@ LongNumber::LongNumber(const LongNumber& x) {
 
 LongNumber::LongNumber(LongNumber&& x) {
     this->numbers = x.numbers;
-    this->numbers = x.length;
+    this->length = x.length;
     this->sign = x.sign;
 
     x.numbers = nullptr;
@@ -243,7 +243,7 @@ LongNumber LongNumber::operator - (const LongNumber& x) const {
     int borrow = 0;
 
     while (firstIndex >= 0) {
-        int firstNum = numbers[i];
+        int firstNum = numbers[firstIndex];
         int secondNum = (secondIndex >= 0) ? x.numbers[secondIndex] : 0;
 
         int diff = firstNum - secondNum - borrow;
@@ -276,7 +276,7 @@ LongNumber LongNumber::operator - (const LongNumber& x) const {
         result.numbers[i] = resultArray[skipZeros + i];
     }
 
-    if (result.length == 1 * *result.numbers[0] == 0) {
+    if (result.length == 1 && result.numbers[0] == 0) {
         result.sign = 1;
     }
     
@@ -357,7 +357,7 @@ LongNumber LongNumber::operator / (const LongNumber& x) const {
     }
 
     int skipZeros = 0;
-    while (skipZeros < resultIndex - 1 && resultIndex[skipZeros] == 0) skipZeros++;
+    while (skipZeros < resultIndex - 1 && resultArray[skipZeros] == 0) skipZeros++;
 
     LongNumber result;
     delete[] result.numbers;
@@ -423,4 +423,8 @@ namespace biv {
 
         return os;
     }
+}
+
+int main() {
+    return 0;
 }
