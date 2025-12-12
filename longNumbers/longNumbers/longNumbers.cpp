@@ -31,7 +31,7 @@ LongNumber::LongNumber(const char* const str) {
     int rawLength = get_length(str);
 
     for (int i = 0; i < rawLength; i++) {
-        if (str[start + i] < '0' || str[start + i] > '9') {
+        if (str[startIndex + i] < '0' || str[startIndex + i] > '9') {
             throw std::invalid_argument("Non-digit character in number");
         }
     }
@@ -87,7 +87,7 @@ LongNumber& LongNumber::operator = (const char* const str) {
     int skipZeros = 0;
 
     for (int i = startIndex; i++; i < get_length(str)) {
-        if (str[i] == '0') skipZeros++
+        if (str[i] == '0') skipZeros++;
     }
 
     length = lengthOfStr - skipZeros;
@@ -285,7 +285,7 @@ LongNumber LongNumber::operator - (const LongNumber& x) const {
 
 LongNumber LongNumber::operator * (const LongNumber& x) const {
     if (numbers[0] == 0 && length == 1 || x.numbers[0] == 0 && x.length == 1) {
-        return longNumber("0");
+        return LongNumber("0");
     }
 
     int resultLength = length + x.length;
@@ -313,18 +313,69 @@ LongNumber LongNumber::operator * (const LongNumber& x) const {
     result.sign = (sign == x.sign) ? 1 : -1;
 
     for (int i = 0; i < result.length; i++) {
-        result.numbers[i] = result[skipZeros + i];
+        result.numbers[i] = resultArr[skipZeros + i];
     }
 
     return result;
 }
 
 LongNumber LongNumber::operator / (const LongNumber& x) const {
-    // TODO
+    if (x.length == 1 && x.numbers[0] == 0) {
+        throw std::invalid_argument("Division by zero");
+    }
+
+    LongNumber absThis = *this;
+    absThis.sign = 1;
+    LongNumber absX = x;
+    absX.sign = 1;
+
+    if (absThis < absX) {
+        return LongNumber("0");
+    }
+
+    int* resultArray = new int[length];
+    int resultIndex = 0;
+
+    LongNumber currentChunk("0");
+
+    for (int i = 0; i < length; i++) {
+        LongNumber digit;
+        delete[] digit.numbers;
+        digit.numbers = new int[1];
+        digit.numbers[0] = numbers[i];
+        digit.length = 1;
+        
+        currentChunk = currentChunk * LongNumber("10") + digit;
+
+        int count = 0;
+        while (!(currentChunk < absX)) {
+            currentChunk = currentChunk - absX;
+            count++;
+        }
+
+        resultArray[resultIndex++] = count;
+    }
+
+    int skipZeros = 0;
+    while (skipZeros < resultIndex - 1 && resultIndex[skipZeros] == 0) skipZeros++;
+
+    LongNumber result;
+    delete[] result.numbers;
+
+    result.length = resultIndex - skipZeros;
+    result.numbers = new int[result.length];
+    result.sign = (sign == x.sign) ? 1 : -1;
+
+    for (int i = 0; i < result.length; i++) {
+        result.numbers[i] = resultArray[skipZeros + i];
+    }
+
+    return result;
 }
 
 LongNumber LongNumber::operator % (const LongNumber& x) const {
-    // TODO
+    LongNumber quotient = *this / x;
+    return *this - (quotient * x);
 }
 
 int LongNumber::get_digits_number() const noexcept {
@@ -332,7 +383,13 @@ int LongNumber::get_digits_number() const noexcept {
 }
 
 int LongNumber::get_rank_number(int rank) const {
-    // TODO
+    if (rank < 0 || rank >= length) {
+        return 0;
+    }
+
+    int index = length - 1 - rank;
+
+    return numbers[index];
 }
 
 bool LongNumber::is_negative() const noexcept {
@@ -345,18 +402,11 @@ bool LongNumber::is_negative() const noexcept {
 int LongNumber::get_length(const char* const str) const noexcept {
     if (!str) return 0;
 
-    int startIndex = 0;
-    if (str[0] == '-' || str[0] == '+') {
-        startIndex = 0;
+    int length = 0;
+    while (str[length] != '\0') {
+        length++;
     }
-
-    int count = 0;
-    while (str[i] != '\0') {
-        count++;
-        startIndex++;
-    }
-
-    return count;
+    return length;
 }
 
 // ----------------------------------------------------------
@@ -364,6 +414,13 @@ int LongNumber::get_length(const char* const str) const noexcept {
 // ----------------------------------------------------------
 namespace biv {
     std::ostream& operator << (std::ostream& os, const LongNumber& x) {
-        // TODO
+        if (x.sign == -1) {
+            os << '-';
+        }
+        for (int i = 0; i < x.length; i++) {
+            os << x.numbers[i];
+        }
+
+        return os;
     }
 }
