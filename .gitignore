@@ -41,3 +41,4 @@
 *.dwo
 /.vs
 /longNumbers/.vs/longNumbers
+/longNumbers/longNumbers/x64/Debug
