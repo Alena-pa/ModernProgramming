@@ -28,7 +28,7 @@ LongNumber::LongNumber(const char* const str) {
         throw std::invalid_argument("No numbers after digit");
     }
 
-    int rawLength = get_length(str);
+    int rawLength = get_length(str + startIndex);
 
     for (int i = 0; i < rawLength; i++) {
         if (str[startIndex + i] < '0' || str[startIndex + i] > '9') {
@@ -39,8 +39,8 @@ LongNumber::LongNumber(const char* const str) {
     int skipZeros = 0;
     while (skipZeros < rawLength - 1 && str[startIndex + skipZeros] == '0') skipZeros++;
 
-    int length = rawLength - skipZeros;
-    int* numbers = new int[length];
+    length = rawLength - skipZeros;
+    numbers = new int[length];
     for (int i = 0; i < length; i++) {
         numbers[i] = str[startIndex + skipZeros + i] - '0';
     }
@@ -49,10 +49,10 @@ LongNumber::LongNumber(const char* const str) {
 }
 
 LongNumber::LongNumber(const LongNumber& x) {
-    int length = x.length;
-    int sign = x.sign;
+    length = x.length;
+    sign = x.sign;
 
-    int* numbers = new int[length];
+    numbers = new int[length];
 
     for (int i = 0; i < length; i++) numbers[i] = x.numbers[i];
 }
@@ -68,7 +68,10 @@ LongNumber::LongNumber(LongNumber&& x) {
 }
 
 LongNumber::~LongNumber() {
-    delete[] numbers;
+    if (numbers != nullptr) {
+        delete[] numbers;
+        numbers = nullptr;
+    }
 }
 
 LongNumber& LongNumber::operator = (const char* const str) {
@@ -83,14 +86,13 @@ LongNumber& LongNumber::operator = (const char* const str) {
     if (str[0] == '-') sign -= 1, startIndex++;
     else if(str[0] == '+') sign += 1, startIndex++;
 
-    int lengthOfStr = get_length(str - startIndex);
+    int lengthOfStr = get_length(str + startIndex);
     int skipZeros = 0;
-
-    for (int i = startIndex; i++; i < get_length(str)) {
-        if (str[i] == '0') skipZeros++;
+    int totalLength = get_length(str + startIndex);
+    while (skipZeros < totalLength - 1 && str[startIndex + skipZeros] == '0') {
+        ++skipZeros;
     }
-
-    length = lengthOfStr - skipZeros;
+    length = totalLength - skipZeros;
 
     numbers = new int[length];
 
@@ -200,7 +202,6 @@ LongNumber LongNumber::operator + (const LongNumber& x) const {
     }
 
     LongNumber result;
-    delete[] result.numbers;
 
     int startIndex = (resultArray[0] == 0) ? 1 : 0;
     int realLength = maxLength - startIndex;
@@ -266,7 +267,6 @@ LongNumber LongNumber::operator - (const LongNumber& x) const {
     while (skipZeros < maxLength - 1 && resultArray[skipZeros] == 0) skipZeros++;
 
     LongNumber result;
-    delete[] result.numbers;
 
     result.length = maxLength - skipZeros;
     result.numbers = new int[result.length];
@@ -305,7 +305,6 @@ LongNumber LongNumber::operator * (const LongNumber& x) const {
     while (skipZeros < resultLength - 1 && resultArr[skipZeros] == 0) skipZeros++;
 
     LongNumber result;
-    delete[] result.numbers;
 
     result.length = resultLength - skipZeros;
     result.numbers = new int[result.length];
@@ -360,7 +359,6 @@ LongNumber LongNumber::operator / (const LongNumber& x) const {
     while (skipZeros < resultIndex - 1 && resultArray[skipZeros] == 0) skipZeros++;
 
     LongNumber result;
-    delete[] result.numbers;
 
     result.length = resultIndex - skipZeros;
     result.numbers = new int[result.length];
@@ -423,8 +421,4 @@ namespace biv {
 
         return os;
     }
-}
-
-int main() {
-    return 0;
 }

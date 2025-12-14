@@ -43,3 +43,6 @@
 /longNumbers/.vs/longNumbers
 /longNumbers/longNumbers/x64/Debug
 /longNumbers/packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7
+/longNumbers/Tests/x64/Debug
+/longNumbers/x64/Debug
+/.gitignore
