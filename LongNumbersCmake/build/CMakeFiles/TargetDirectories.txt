@@ -1,0 +1,2 @@
+C:/Users/Alena/source/repos/ModernProgramming/LongNumbersCmake/build/CMakeFiles/edit_cache.dir
+C:/Users/Alena/source/repos/ModernProgramming/LongNumbersCmake/build/CMakeFiles/rebuild_cache.dir
