@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <string>
 #include <algorithm>
+#include <vector>
 #include "longNumber.hpp"
 
 using biv::LongNumber;
@@ -125,10 +126,14 @@ LongNumber& LongNumber::operator = (LongNumber&& x) {
     if (this == &x) return *this;
 
     delete[] numbers;
-    
+
     numbers = x.numbers;
     length = x.length;
     sign = x.sign;
+
+    x.numbers = nullptr;
+    x.length = 0;
+    x.sign = 1;
 
     return *this;
 }
@@ -176,44 +181,31 @@ bool LongNumber::operator < (const LongNumber& x) const {
 LongNumber LongNumber::operator + (const LongNumber& x) const {
     if (sign != x.sign) {
         LongNumber negX = x;
-        negX.sign = (x.sign == 1) ? -1 : 1;
+        negX.sign *= -1;
         return *this - negX;
     }
-        
-    int maxLength = max(length, x.length);
-    int* resultArray = new int[maxLength + 1];
-    
-    int firstIndex = length - 1;
-    int secondIndex = x.length - 1;
-    int indexInRes = maxLength - 1;
-    int carry = 0;
 
-    while (firstIndex >= 0 || secondIndex >= 0 || carry) {
-        int firstNum = (firstIndex >= 0) ? numbers[firstIndex] : 0;
-        int secondNum = (secondIndex >= 0) ? x.numbers[secondIndex] : 0;
+    int maxLen = std::max(length, x.length);
+    int* temp = new int[maxLen + 1];
+    int i = length - 1, j = x.length - 1, k = maxLen, carry = 0;
 
-        int sum = firstNum + secondNum + carry;
-        resultArray[indexInRes] = sum % 10;
+    while (i >= 0 || j >= 0 || carry) {
+        int sum = carry + (i >= 0 ? numbers[i--] : 0) + (j >= 0 ? x.numbers[j--] : 0);
+        temp[k--] = sum % 10;
         carry = sum / 10;
-
-        firstIndex--;
-        secondIndex--;
-        indexInRes--;
     }
+
+    int start = k + 1;
+    int newLen = (maxLen + 1) - start;
 
     LongNumber result;
-
-    int startIndex = (resultArray[0] == 0) ? 1 : 0;
-    int realLength = maxLength - startIndex;
-
-    result.length = realLength;
-    result.numbers = new int[realLength];
+    delete[] result.numbers;
+    result.length = newLen;
     result.sign = sign;
+    result.numbers = new int[newLen];
+    for (int idx = 0; idx < newLen; ++idx) result.numbers[idx] = temp[start + idx];
 
-    for (int i = 0; i < realLength; i++) {
-        result.numbers[i] = resultArray[startIndex + i];
-    }
-
+    delete[] temp;
     return result;
 }
 
@@ -284,65 +276,50 @@ LongNumber LongNumber::operator - (const LongNumber& x) const {
 }
 
 LongNumber LongNumber::operator * (const LongNumber& x) const {
-    if (numbers[0] == 0 && length == 1 || x.numbers[0] == 0 && x.length == 1) {
+    if ((length == 1 && numbers[0] == 0) || (x.length == 1 && x.numbers[0] == 0)) {
         return LongNumber("0");
     }
 
-    int resultLength = length + x.length;
-    int* resultArr = new int[resultLength] {0};
+    int resLen = length + x.length;
+    int* resArr = new int[resLen]();
 
     for (int i = length - 1; i >= 0; i--) {
         for (int j = x.length - 1; j >= 0; j--) {
-            int multiply = numbers[i] * x.numbers[j];
-            int sum = multiply + resultArr[i + j + 1];
-
-            resultArr[i + j + 1] = sum % 10;
-            resultArr[i + j] = sum / 10;
+            int mul = numbers[i] * x.numbers[j] + resArr[i + j + 1];
+            resArr[i + j + 1] = mul % 10;
+            resArr[i + j] += mul / 10;
         }
     }
 
-    int skipZeros = 0;
-    while (skipZeros < resultLength - 1 && resultArr[skipZeros] == 0) skipZeros++;
+    int skip = 0;
+    while (skip < resLen - 1 && resArr[skip] == 0) skip++;
 
     LongNumber result;
-
-    result.length = resultLength - skipZeros;
-    result.numbers = new int[result.length];
-
+    delete[] result.numbers;
+    result.length = resLen - skip;
     result.sign = (sign == x.sign) ? 1 : -1;
+    result.numbers = new int[result.length];
+    for (int i = 0; i < result.length; i++) result.numbers[i] = resArr[skip + i];
 
-    for (int i = 0; i < result.length; i++) {
-        result.numbers[i] = resultArr[skipZeros + i];
-    }
-
+    delete[] resArr;
     return result;
 }
 
 LongNumber LongNumber::operator / (const LongNumber& x) const {
-    if (x.length == 1 && x.numbers[0] == 0) {
-        throw std::invalid_argument("Division by zero");
-    }
+    if (x.length == 1 && x.numbers[0] == 0) throw std::invalid_argument("Division by zero");
 
-    LongNumber absThis = *this;
-    absThis.sign = 1;
-    LongNumber absX = x;
-    absX.sign = 1;
+    LongNumber absThis = *this; absThis.sign = 1;
+    LongNumber absX = x; absX.sign = 1;
 
-    if (absThis < absX) {
-        return LongNumber("0");
-    }
+    if (absThis < absX) return LongNumber("0");
 
-    int* resultArray = new int[length];
-    int resultIndex = 0;
-
+    int* resArr = new int[length]();
+    int resIdx = 0;
     LongNumber currentChunk("0");
 
     for (int i = 0; i < length; i++) {
-        LongNumber digit;
-        delete[] digit.numbers;
-        digit.numbers = new int[1];
-        digit.numbers[0] = numbers[i];
-        digit.length = 1;
+        char dStr[2] = { (char)(numbers[i] + '0'), '\0' };
+        LongNumber digit(dStr);
         
         currentChunk = currentChunk * LongNumber("10") + digit;
 
@@ -351,23 +328,20 @@ LongNumber LongNumber::operator / (const LongNumber& x) const {
             currentChunk = currentChunk - absX;
             count++;
         }
-
-        resultArray[resultIndex++] = count;
+        resArr[resIdx++] = count;
     }
 
-    int skipZeros = 0;
-    while (skipZeros < resultIndex - 1 && resultArray[skipZeros] == 0) skipZeros++;
+    int skip = 0;
+    while (skip < resIdx - 1 && resArr[skip] == 0) skip++;
 
     LongNumber result;
-
-    result.length = resultIndex - skipZeros;
+    delete[] result.numbers;
+    result.length = resIdx - skip;
     result.numbers = new int[result.length];
     result.sign = (sign == x.sign) ? 1 : -1;
+    for (int i = 0; i < result.length; i++) result.numbers[i] = resArr[skip + i];
 
-    for (int i = 0; i < result.length; i++) {
-        result.numbers[i] = resultArray[skipZeros + i];
-    }
-
+    delete[] resArr;
     return result;
 }
 

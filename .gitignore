@@ -1,48 +1,61 @@
-# Prerequisites
-*.d
 
-# Compiled Object files
-*.slo
-*.lo
+build/
+Build/
+out/
+bin/
+lib/
+obj/
+
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_deps/
+
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
+*.a
+*.lib
 *.so
 *.dylib
 *.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
 *.exe
 *.out
 *.app
+*.exp
 
-# debug information files
+*.pdb
+*.ilk
+*.idb
 *.dwo
-/.vs
-/longNumbers/.vs/longNumbers
-/longNumbers/longNumbers/x64/Debug
-/longNumbers/packages/Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7
-/longNumbers/Tests/x64/Debug
-/longNumbers/x64/Debug
-/.gitignore
+
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.db
+*.opendb
+x64/
+Win32/
+Debug/
+Release/
+
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.history/
+
+*.log
+*.tlog
+*.lastbuildstate
+*.bak
+*.d
+
+.DS_Store
+Thumbs.db

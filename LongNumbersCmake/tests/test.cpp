@@ -3,7 +3,6 @@
 
 using biv::LongNumber;
 
-// 1. Конструктор по умолчанию — ноль
 TEST(LongNumberTest, DefaultConstructor) {
     LongNumber n;
     EXPECT_EQ(n.get_digits_number(), 1);
@@ -11,7 +10,6 @@ TEST(LongNumberTest, DefaultConstructor) {
     EXPECT_FALSE(n.is_negative());
 }
 
-// 2. Конструктор из строки — положительное число
 TEST(LongNumberTest, FromStringPositive) {
     LongNumber n("12345");
     EXPECT_EQ(n.get_digits_number(), 5);
@@ -20,7 +18,6 @@ TEST(LongNumberTest, FromStringPositive) {
     EXPECT_FALSE(n.is_negative());
 }
 
-// 3. Конструктор из строки — отрицательное число
 TEST(LongNumberTest, FromStringNegative) {
     LongNumber n("-6789");
     EXPECT_TRUE(n.is_negative());
@@ -28,7 +25,6 @@ TEST(LongNumberTest, FromStringNegative) {
     EXPECT_EQ(n.get_rank_number(0), 9);
 }
 
-// 4. Конструктор — ведущие нули
 TEST(LongNumberTest, LeadingZeros) {
     LongNumber n("00042");
     EXPECT_EQ(n.get_digits_number(), 2);
@@ -36,7 +32,6 @@ TEST(LongNumberTest, LeadingZeros) {
     EXPECT_EQ(n.get_rank_number(1), 4);
 }
 
-// 5. Ноль — всегда положительный
 TEST(LongNumberTest, ZeroIsPositive) {
     LongNumber n1("-0");
     LongNumber n2("0");
@@ -48,7 +43,6 @@ TEST(LongNumberTest, ZeroIsPositive) {
     EXPECT_EQ(n2, n3);
 }
 
-// 6. Оператор ==
 TEST(LongNumberTest, Equality) {
     LongNumber a("123");
     LongNumber b("123");
@@ -57,7 +51,6 @@ TEST(LongNumberTest, Equality) {
     EXPECT_NE(a, c);
 }
 
-// 7. Сложение: положительные числа
 TEST(LongNumberTest, AdditionPositive) {
     LongNumber a("999");
     LongNumber b("1");
@@ -65,7 +58,6 @@ TEST(LongNumberTest, AdditionPositive) {
     EXPECT_EQ(a + b, expected);
 }
 
-// 8. Сложение: отрицательные числа
 TEST(LongNumberTest, AdditionNegative) {
     LongNumber a("-500");
     LongNumber b("-300");
@@ -73,7 +65,6 @@ TEST(LongNumberTest, AdditionNegative) {
     EXPECT_EQ(a + b, expected);
 }
 
-// 9. Вычитание: простой случай
 TEST(LongNumberTest, Subtraction) {
     LongNumber a("1000");
     LongNumber b("1");
@@ -81,7 +72,6 @@ TEST(LongNumberTest, Subtraction) {
     EXPECT_EQ(a - b, expected);
 }
 
-// 10. Вычитание: меньшее из большего → отрицательный результат
 TEST(LongNumberTest, SubtractionNegativeResult) {
     LongNumber a("5");
     LongNumber b("10");
@@ -89,7 +79,6 @@ TEST(LongNumberTest, SubtractionNegativeResult) {
     EXPECT_EQ(a - b, expected);
 }
 
-// 11. Умножение: на ноль
 TEST(LongNumberTest, MultiplicationByZero) {
     LongNumber a("123456789");
     LongNumber b("0");
@@ -98,7 +87,6 @@ TEST(LongNumberTest, MultiplicationByZero) {
     EXPECT_EQ(b * a, expected);
 }
 
-// 12. Умножение: простой случай
 TEST(LongNumberTest, MultiplicationSimple) {
     LongNumber a("123");
     LongNumber b("3");
@@ -106,7 +94,6 @@ TEST(LongNumberTest, MultiplicationSimple) {
     EXPECT_EQ(a * b, expected);
 }
 
-// 13. Деление: без остатка
 TEST(LongNumberTest, DivisionExact) {
     LongNumber a("100");
     LongNumber b("4");
@@ -114,7 +101,6 @@ TEST(LongNumberTest, DivisionExact) {
     EXPECT_EQ(a / b, expected);
 }
 
-// 14. Деление: с остатком (проверяем целочисленное деление)
 TEST(LongNumberTest, DivisionTruncated) {
     LongNumber a("10");
     LongNumber b("3");
@@ -122,7 +108,6 @@ TEST(LongNumberTest, DivisionTruncated) {
     EXPECT_EQ(a / b, expected);
 }
 
-// 15. Остаток от деления
 TEST(LongNumberTest, Modulo) {
     LongNumber a("10");
     LongNumber b("3");
@@ -130,14 +115,12 @@ TEST(LongNumberTest, Modulo) {
     EXPECT_EQ(a % b, expected);
 }
 
-// 16. Деление на ноль → исключение
 TEST(LongNumberTest, DivisionByZeroThrows) {
     LongNumber a("42");
     LongNumber b("0");
     EXPECT_THROW(a / b, std::invalid_argument);
 }
 
-// 17. Некорректная строка → исключение
 TEST(LongNumberTest, InvalidStringThrows) {
     EXPECT_THROW(LongNumber("12a3"), std::invalid_argument);
     EXPECT_THROW(LongNumber(""), std::invalid_argument);
@@ -146,7 +129,6 @@ TEST(LongNumberTest, InvalidStringThrows) {
     EXPECT_THROW(LongNumber(nullptr), std::invalid_argument);
 }
 
-// 18. Присваивание из строки
 TEST(LongNumberTest, AssignFromString) {
     LongNumber n;
     n = "98765";
@@ -154,7 +136,6 @@ TEST(LongNumberTest, AssignFromString) {
     EXPECT_EQ(n.get_rank_number(0), 5);
 }
 
-// 19. Сравнение: больше/меньше
 TEST(LongNumberTest, Comparisons) {
     LongNumber a("100");
     LongNumber b("99");
@@ -168,7 +149,6 @@ TEST(LongNumberTest, Comparisons) {
     EXPECT_TRUE(c < a);
 }
 
-// 20. Копирование и перемещение
 TEST(LongNumberTest, CopyAndMove) {
     LongNumber a("12345");
     LongNumber b = a;
